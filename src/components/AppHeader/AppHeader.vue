@@ -1,8 +1,8 @@
 <template>
-  <div class="header">
+  <div class="app-header">
     <span class="icon"></span>
     <h1 class="text">Chicken Music</h1>
-    <router-link class="mine" to="/user">
+    <router-link class="mine" to="/">
       <i class="icon-mine"></i>
     </router-link>
   </div>
@@ -15,7 +15,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.header {
+.app-header {
   height: 44px;
   text-align: center;
   color: $color-theme;
