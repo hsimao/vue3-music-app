@@ -14,7 +14,6 @@ export function get(url, params) {
       params
     })
     .then(res => {
-      console.log('res', res)
       const serverData = res.data
       if (serverData.code === ERR_OK) {
         return serverData.result
