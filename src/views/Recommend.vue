@@ -1,34 +1,61 @@
 <template>
   <div class="recommend">
-    <div class="slider-wrapper">
-      <div class="slider-content">
-        <Slider v-if="showSlider" :sliders="sliders" />
+    <Scroll class="recommend-content">
+      <div>
+        <div class="slider-wrapper">
+          <div class="slider-content">
+            <Slider v-if="showSlider" :sliders="sliders" />
+          </div>
+        </div>
+        <div class="recommend-list">
+          <h1 class="list-title">熱門歌單推薦</h1>
+          <ul>
+            <li v-for="item in albums" class="item" :key="item.id">
+              <div class="icon">
+                <img width="60" height="60" :src="item.pic" />
+              </div>
+              <div class="text">
+                <h2 class="name">
+                  {{ item.username }}
+                </h2>
+                <p class="title">
+                  {{ item.title }}
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </Scroll>
   </div>
 </template>
 
 <script>
 import { getRecommend } from '@/service/recommend'
-import { ref, onBeforeMount } from 'vue'
+import { ref, onMounted } from 'vue'
 import Slider from '@/components/base/Slider/Slider'
+import Scroll from '@/components/base/Scroll/Scroll'
 
 export default {
   name: 'RecommendPage',
   components: {
-    Slider
+    Slider,
+    Scroll
   },
   setup() {
     const sliders = ref([])
     const showSlider = ref(false)
 
-    onBeforeMount(async () => {
+    const albums = ref([])
+
+    onMounted(async () => {
       const result = await getRecommend()
       sliders.value = result.sliders
       showSlider.value = sliders.value.length > 0
+      albums.value = result.albums
     })
 
-    return { sliders, showSlider }
+    return { sliders, showSlider, albums }
   }
 }
 </script>
@@ -39,11 +66,12 @@ export default {
   width: 100%;
   top: 88px;
   bottom: 0;
-  overflow: hidden auto;
+  overflow: scroll;
 
   .recommend-content {
     height: 100%;
     overflow: hidden;
+
     .slider-wrapper {
       position: relative;
       width: 100%;
@@ -58,6 +86,7 @@ export default {
         height: 100%;
       }
     }
+
     .recommend-list {
       .list-title {
         height: 65px;
