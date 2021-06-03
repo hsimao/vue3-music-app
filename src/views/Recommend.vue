@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend" v-loading="loading">
+  <div class="recommend" v-loading:[loadingText]="loading">
     <Scroll class="recommend-content">
       <div>
         <div class="slider-wrapper">
@@ -48,6 +48,8 @@ export default {
 
     const albums = ref([])
 
+    const loadingText = ref('正在載入中...')
+
     onMounted(async () => {
       const result = await getRecommend()
       sliders.value = result.sliders
@@ -59,7 +61,7 @@ export default {
       return !sliders.value.length && !showSlider.value.length
     })
 
-    return { sliders, showSlider, albums, loading }
+    return { sliders, showSlider, albums, loading, loadingText }
   }
 }
 </script>
