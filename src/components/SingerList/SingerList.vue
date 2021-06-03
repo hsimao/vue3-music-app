@@ -1,6 +1,6 @@
 <template>
-  <scroll class="singer-list">
-    <ul>
+  <scroll class="singer-list" :probeType="3" @scroll="onScroll">
+    <ul ref="groupRef">
       <li v-for="group in data" :key="group.title" class="group">
         <h2 class="title">{{ group.title }}</h2>
         <ul>
@@ -11,11 +11,15 @@
         </ul>
       </li>
     </ul>
+    <div class="fixed" v-show="fixedTitle">
+      <div class="fixed-title">{{ fixedTitle }}</div>
+    </div>
   </scroll>
 </template>
 
 <script>
 import Scroll from '@/components/base/Scroll/Scroll'
+import useFixed from './useFixed'
 
 export default {
   name: 'SingerList',
@@ -27,6 +31,10 @@ export default {
         return []
       }
     }
+  },
+  setup(props) {
+    const { groupRef, onScroll, fixedTitle } = useFixed(props)
+    return { groupRef, onScroll, fixedTitle }
   }
 }
 </script>
@@ -62,6 +70,22 @@ export default {
         color: $color-text-l;
         font-size: $font-size-medium;
       }
+    }
+  }
+
+  .fixed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    .fixed-title {
+      height: 30px;
+      line-height: 30px;
+      padding-left: 20px;
+      font-size: $font-size-small;
+      color: $color-text-l;
+      background: $color-highlight-background;
     }
   }
 }
