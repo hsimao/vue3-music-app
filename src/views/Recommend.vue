@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" v-loading="loading">
     <Scroll class="recommend-content">
       <div>
         <div class="slider-wrapper">
@@ -8,7 +8,7 @@
           </div>
         </div>
         <div class="recommend-list">
-          <h1 class="list-title">熱門歌單推薦</h1>
+          <h1 class="list-title" v-show="!loading">熱門歌單推薦</h1>
           <ul>
             <li v-for="item in albums" class="item" :key="item.id">
               <div class="icon">
@@ -32,7 +32,7 @@
 
 <script>
 import { getRecommend } from '@/service/recommend'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import Slider from '@/components/base/Slider/Slider'
 import Scroll from '@/components/base/Scroll/Scroll'
 
@@ -55,7 +55,11 @@ export default {
       albums.value = result.albums
     })
 
-    return { sliders, showSlider, albums }
+    const loading = computed(() => {
+      return !sliders.value.length && !showSlider.value.length
+    })
+
+    return { sliders, showSlider, albums, loading }
   }
 }
 </script>
