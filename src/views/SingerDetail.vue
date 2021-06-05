@@ -8,6 +8,8 @@
 import { getSingerDetail } from '@/service/singer'
 import { processSongs } from '@/service/song'
 import MusicList from '@/components/MusicList/MusicList'
+import storage from 'good-storage'
+import { SINGER_KEY } from '@/assets/js/constant'
 
 export default {
   name: 'SingerDetailPage',
@@ -17,7 +19,7 @@ export default {
   props: {
     singer: {
       type: Object,
-      required: true
+      default: () => null
     }
   },
   data() {
@@ -26,16 +28,45 @@ export default {
     }
   },
   computed: {
+    cacheSinger() {
+      let singerData = null
+      const singer = this.singer
+
+      if (singer) {
+        singerData = singer
+      } else {
+        const cachedSinger = storage.session.get(SINGER_KEY)
+        if (cachedSinger?.mid === this.singerMid) {
+          singerData = cachedSinger
+        }
+      }
+
+      return singerData
+    },
     pic() {
-      return this.singer?.pic
+      return this.cacheSinger?.pic
     },
     title() {
-      return this.singer?.name
+      return this.cacheSinger?.name
+    },
+    singerMid() {
+      return this.$route.params.id
     }
   },
   async created() {
-    const result = await getSingerDetail(this.singer)
-    this.songs = await processSongs(result.songs)
+    await this.init()
+  },
+  methods: {
+    async init() {
+      if (!this.cacheSinger) {
+        // 回到第一層路由
+        const firstLevelPath = this.$route.matched[0].path
+        return this.$router.push(firstLevelPath)
+      }
+
+      const result = await getSingerDetail(this.cacheSinger)
+      this.songs = await processSongs(result.songs)
+    }
   }
 }
 </script>
