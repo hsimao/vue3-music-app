@@ -13,7 +13,8 @@
       :probe-type="3"
       @scroll="onScroll"
       :style="scrollStyle"
-      v-loading="!songs.length"
+      v-loading="loading"
+      v-no-result:[noResultText]="noResult"
     >
       <div class="song-list-wrapper">
         <SongList :songs="songs" />
@@ -39,8 +40,22 @@ export default {
       type: Array,
       default: () => []
     },
-    title: String,
-    pic: String
+    title: {
+      type: String,
+      default: ''
+    },
+    pic: {
+      type: String,
+      default: ''
+    },
+    loading: {
+      type: Boolean,
+      default: true
+    },
+    noResultText: {
+      type: String,
+      default: '抱歉，沒有可播放的歌曲'
+    }
   },
   data() {
     return {
@@ -93,6 +108,9 @@ export default {
     },
     scrollStyle() {
       return { top: `${this.imageHeight}px` }
+    },
+    noResult() {
+      return !this.loading && !this.songs.length
     }
   },
   mounted() {
@@ -126,28 +144,29 @@ export default {
     .icon-back {
       display: block;
       padding: 10px;
-      font-size: $font-size-large-x;
       color: $color-theme;
+      font-size: $font-size-large-x;
     }
   }
   .title {
     position: absolute;
     top: 0;
     left: 10%;
-    width: 80%;
     z-index: 20;
-    transform: translateZ(2px);
-    @include no-wrap();
-    text-align: center;
-    line-height: 40px;
-    font-size: $font-size-large;
+    width: 80%;
     color: $color-text;
+    text-align: center;
+    font-size: $font-size-large;
+    line-height: 40px;
+    transform: translateZ(2px);
+
+    @include no-wrap();
   }
   .bg-image {
     position: relative;
     width: 100%;
-    transform-origin: top;
     background-size: cover;
+    transform-origin: top;
     .play-btn-wrapper {
       position: absolute;
       bottom: 20px;
@@ -155,19 +174,19 @@ export default {
       width: 100%;
       .play-btn {
         box-sizing: border-box;
-        width: 135px;
-        padding: 7px 0;
         margin: 0 auto;
-        text-align: center;
+        padding: 7px 0;
+        width: 135px;
         border: 1px solid $color-theme;
-        color: $color-theme;
         border-radius: 100px;
+        color: $color-theme;
+        text-align: center;
         font-size: 0;
       }
       .icon-play {
         display: inline-block;
-        vertical-align: middle;
         margin-right: 6px;
+        vertical-align: middle;
         font-size: $font-size-medium-x;
       }
       .text {
@@ -188,8 +207,8 @@ export default {
   .list {
     position: absolute;
     bottom: 0;
-    width: 100%;
     z-index: 0;
+    width: 100%;
     .song-list-wrapper {
       padding: 20px 30px;
       background: $color-background;

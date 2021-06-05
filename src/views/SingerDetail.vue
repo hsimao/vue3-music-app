@@ -1,6 +1,6 @@
 <template>
   <div class="singer-detail">
-    <MusicList :songs="songs" :title="title" :pic="pic" />
+    <MusicList :songs="songs" :loading="loading" :title="title" :pic="pic" />
   </div>
 </template>
 
@@ -24,7 +24,8 @@ export default {
   },
   data() {
     return {
-      songs: []
+      songs: [],
+      loading: true
     }
   },
   computed: {
@@ -63,9 +64,14 @@ export default {
         const firstLevelPath = this.$route.matched[0].path
         return this.$router.push(firstLevelPath)
       }
-
-      const result = await getSingerDetail(this.cacheSinger)
-      this.songs = await processSongs(result.songs)
+      try {
+        const result = await getSingerDetail(this.cacheSinger)
+        this.songs = await processSongs(result.songs)
+      } catch (err) {
+        console.log(err)
+      } finally {
+        this.loading = false
+      }
     }
   }
 }
@@ -74,11 +80,11 @@ export default {
 <style lang="scss" scoped>
 .singer-detail {
   position: fixed;
-  z-index: 10;
   top: 0;
-  left: 0;
-  bottom: 0;
   right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
   background: $color-background;
 }
 </style>

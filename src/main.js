@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import lazyPlugin from 'vue3-lazy'
 import loadingDirective from '@/components/base/Loading/directive'
+import noResultDirective from '@/components/base/NoResult/directive'
 
 // 引入全域樣式
 import '@/assets/scss/index.scss'
@@ -15,4 +16,5 @@ createApp(App)
     loading: require('@/assets/images/default.png')
   })
   .directive('loading', loadingDirective)
+  .directive('no-result', noResultDirective)
   .mount('#app')
