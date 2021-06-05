@@ -1,7 +1,11 @@
 <template>
   <div class="singer" v-loading="!singers.length">
     <SingerList :data="singers" @select="selectSinger" />
-    <router-view :singer="selectedSinger" />
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :singer="selectedSinger" />
+      </transition>
+    </router-view>
   </div>
 </template>
 
@@ -44,8 +48,8 @@ export default {
 <style lang="scss" scoped>
 .singer {
   position: fixed;
-  width: 100%;
   top: 88px;
   bottom: 0;
+  width: 100%;
 }
 </style>
