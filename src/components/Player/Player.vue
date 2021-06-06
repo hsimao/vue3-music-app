@@ -11,9 +11,30 @@
         <h1 class="title">{{ currentSong.name }}</h1>
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
+
+      <!-- 播放 tool -->
+      <div class="bottom">
+        <div class="operators">
+          <div class="icon i-left">
+            <i class="icon-sequence" />
+          </div>
+          <div class="icon i-left">
+            <i class="icon-prev" @click="prev" />
+          </div>
+          <div class="icon i-center">
+            <i :class="playIcon" @click="togglePlay" />
+          </div>
+          <div class="icon i-right">
+            <i class="icon-next" @click="next" />
+          </div>
+          <div class="icon i-right">
+            <i class="icon-not-favorite" />
+          </div>
+        </div>
+      </div>
     </div>
 
-    <audio ref="audioRef" />
+    <audio ref="audioRef" @pause="pause" />
   </div>
 </template>
 
@@ -28,6 +49,13 @@ export default {
     const store = useStore()
     const fullScreen = computed(() => store.state.fullScreen)
     const currentSong = computed(() => store.getters.currentSong)
+    const playing = computed(() => store.state.playing)
+    const currentIndex = computed(() => store.state.currentIndex)
+    const playlist = computed(() => store.state.playlist)
+
+    const playIcon = computed(() =>
+      playing.value ? 'icon-pause' : 'icon-play'
+    )
 
     watch(currentSong, newSong => {
       if (!newSong.id || !newSong.url) {
@@ -38,11 +66,69 @@ export default {
       audioEl.play()
     })
 
+    watch(playing, newPlaying => {
+      const audioEl = audioRef.value
+      newPlaying ? audioEl.play() : audioEl.pause()
+    })
+
     const goBack = () => {
       store.commit('setFullScreen', false)
     }
 
-    return { audioRef, fullScreen, currentSong, goBack }
+    const togglePlay = () => {
+      store.commit('setPlaying', !playing.value)
+    }
+
+    const pause = () => {
+      store.commit('setPlaying', false)
+    }
+
+    const handlePlayByIndex = index => {
+      const list = playlist.value
+      if (!list.length) return
+      if (list.length === 1) return loop()
+
+      store.commit('setCurrentIndex', index)
+
+      if (!playing.value) {
+        store.commit('setPlaying', true)
+      }
+    }
+
+    const next = () => {
+      let index = currentIndex.value + 1
+      if (index === playlist.value.length) {
+        index = 0
+      }
+      handlePlayByIndex(index)
+    }
+
+    const prev = () => {
+      let index = currentIndex.value - 1
+      if (index === -1) {
+        index = playlist.value.length - 1
+      }
+      handlePlayByIndex(index)
+    }
+
+    // 循環播放
+    const loop = () => {
+      const audioEl = audioRef.value
+      audioEl.currentTime = 0
+      audioEl.play()
+    }
+
+    return {
+      audioRef,
+      fullScreen,
+      currentSong,
+      goBack,
+      playIcon,
+      togglePlay,
+      pause,
+      prev,
+      next
+    }
   }
 }
 </script>
@@ -103,6 +189,83 @@ export default {
         text-align: center;
         font-size: $font-size-medium;
         line-height: 20px;
+      }
+    }
+
+    .bottom {
+      position: absolute;
+      bottom: 50px;
+      width: 100%;
+      .dot-wrapper {
+        text-align: center;
+        font-size: 0;
+        .dot {
+          display: inline-block;
+          vertical-align: middle;
+          margin: 0 4px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: $color-text-l;
+          &.active {
+            width: 20px;
+            border-radius: 5px;
+            background: $color-text-ll;
+          }
+        }
+      }
+      .progress-wrapper {
+        display: flex;
+        align-items: center;
+        width: 80%;
+        margin: 0px auto;
+        padding: 10px 0;
+        .time {
+          color: $color-text;
+          font-size: $font-size-small;
+          flex: 0 0 40px;
+          line-height: 30px;
+          width: 40px;
+          &.time-l {
+            text-align: left;
+          }
+          &.time-r {
+            text-align: right;
+          }
+        }
+        .progress-bar-wrapper {
+          flex: 1;
+        }
+      }
+      .operators {
+        display: flex;
+        align-items: center;
+        .icon {
+          flex: 1;
+          color: $color-theme;
+          &.disable {
+            color: $color-theme-d;
+          }
+          i {
+            font-size: 30px;
+          }
+        }
+        .i-left {
+          text-align: right;
+        }
+        .i-center {
+          padding: 0 20px;
+          text-align: center;
+          i {
+            font-size: 40px;
+          }
+        }
+        .i-right {
+          text-align: left;
+        }
+        .icon-favorite {
+          color: $color-sub-theme;
+        }
       }
     }
   }
