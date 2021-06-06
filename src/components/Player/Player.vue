@@ -18,13 +18,13 @@
           <div class="icon i-left">
             <i class="icon-sequence" />
           </div>
-          <div class="icon i-left">
+          <div class="icon i-left" :class="disableClass">
             <i class="icon-prev" @click="prev" />
           </div>
-          <div class="icon i-center">
+          <div class="icon i-center" :class="disableClass">
             <i :class="playIcon" @click="togglePlay" />
           </div>
-          <div class="icon i-right">
+          <div class="icon i-right" :class="disableClass">
             <i class="icon-next" @click="next" />
           </div>
           <div class="icon i-right">
@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <audio ref="audioRef" @pause="pause" />
+    <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" />
   </div>
 </template>
 
@@ -46,6 +46,7 @@ export default {
   name: 'Player',
   setup() {
     const audioRef = ref(null)
+    const songReady = ref(false)
     const store = useStore()
     const fullScreen = computed(() => store.state.fullScreen)
     const currentSong = computed(() => store.getters.currentSong)
@@ -57,16 +58,22 @@ export default {
       playing.value ? 'icon-pause' : 'icon-play'
     )
 
+    const disableClass = computed(() => {
+      return songReady.value ? '' : 'disable'
+    })
+
     watch(currentSong, newSong => {
       if (!newSong.id || !newSong.url) {
         return
       }
+      songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
     })
 
     watch(playing, newPlaying => {
+      if (!songReady.value) return
       const audioEl = audioRef.value
       newPlaying ? audioEl.play() : audioEl.pause()
     })
@@ -76,6 +83,8 @@ export default {
     }
 
     const togglePlay = () => {
+      if (!songReady.value) return
+
       store.commit('setPlaying', !playing.value)
     }
 
@@ -85,7 +94,7 @@ export default {
 
     const handlePlayByIndex = index => {
       const list = playlist.value
-      if (!list.length) return
+      if (!list.length || !songReady.value) return
       if (list.length === 1) return loop()
 
       store.commit('setCurrentIndex', index)
@@ -118,6 +127,15 @@ export default {
       audioEl.play()
     }
 
+    const ready = () => {
+      if (songReady.value) return
+      songReady.value = true
+    }
+
+    const error = () => {
+      songReady.value = true
+    }
+
     return {
       audioRef,
       fullScreen,
@@ -127,7 +145,10 @@ export default {
       togglePlay,
       pause,
       prev,
-      next
+      next,
+      ready,
+      error,
+      disableClass
     }
   }
 }
