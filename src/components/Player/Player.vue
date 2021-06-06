@@ -15,8 +15,9 @@
       <!-- 播放 tool -->
       <div class="bottom">
         <div class="operators">
+          <!-- 播放模式 依序、隨機、循環 -->
           <div class="icon i-left">
-            <i class="icon-sequence" />
+            <i :class="modeIcon" @click="changeMode" />
           </div>
           <div class="icon i-left" :class="disableClass">
             <i class="icon-prev" @click="prev" />
@@ -41,19 +42,23 @@
 <script>
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
+import useMode from './useMode'
+import usePlay from './usePlay'
 
 export default {
   name: 'Player',
   setup() {
+    // data
     const audioRef = ref(null)
     const songReady = ref(false)
+
+    // vuex
     const store = useStore()
     const fullScreen = computed(() => store.state.fullScreen)
     const currentSong = computed(() => store.getters.currentSong)
     const playing = computed(() => store.state.playing)
-    const currentIndex = computed(() => store.state.currentIndex)
-    const playlist = computed(() => store.state.playlist)
 
+    // computed
     const playIcon = computed(() =>
       playing.value ? 'icon-pause' : 'icon-play'
     )
@@ -62,6 +67,7 @@ export default {
       return songReady.value ? '' : 'disable'
     })
 
+    // watch
     watch(currentSong, newSong => {
       if (!newSong.id || !newSong.url) {
         return
@@ -78,53 +84,9 @@ export default {
       newPlaying ? audioEl.play() : audioEl.pause()
     })
 
+    // methods
     const goBack = () => {
       store.commit('setFullScreen', false)
-    }
-
-    const togglePlay = () => {
-      if (!songReady.value) return
-
-      store.commit('setPlaying', !playing.value)
-    }
-
-    const pause = () => {
-      store.commit('setPlaying', false)
-    }
-
-    const handlePlayByIndex = index => {
-      const list = playlist.value
-      if (!list.length || !songReady.value) return
-      if (list.length === 1) return loop()
-
-      store.commit('setCurrentIndex', index)
-
-      if (!playing.value) {
-        store.commit('setPlaying', true)
-      }
-    }
-
-    const next = () => {
-      let index = currentIndex.value + 1
-      if (index === playlist.value.length) {
-        index = 0
-      }
-      handlePlayByIndex(index)
-    }
-
-    const prev = () => {
-      let index = currentIndex.value - 1
-      if (index === -1) {
-        index = playlist.value.length - 1
-      }
-      handlePlayByIndex(index)
-    }
-
-    // 循環播放
-    const loop = () => {
-      const audioEl = audioRef.value
-      audioEl.currentTime = 0
-      audioEl.play()
     }
 
     const ready = () => {
@@ -135,6 +97,10 @@ export default {
     const error = () => {
       songReady.value = true
     }
+
+    // hooks
+    const { togglePlay, next, prev, pause } = usePlay({ audioRef, songReady })
+    const { modeIcon, changeMode } = useMode()
 
     return {
       audioRef,
@@ -148,7 +114,10 @@ export default {
       next,
       ready,
       error,
-      disableClass
+      disableClass,
+      // mode
+      modeIcon,
+      changeMode
     }
   }
 }
