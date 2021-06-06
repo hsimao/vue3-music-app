@@ -12,22 +12,38 @@
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
 
-      <!-- 播放 tool -->
       <div class="bottom">
+        <!-- 播放進度條 -->
+        <div class="progress-wrapper">
+          <span class="time time-l">{{ formatCurrentTime }}</span>
+          <div class="progress-bar-wrapper">
+            <ProgressBar :progress="progress" />
+          </div>
+          <span class="time time-r">{{ formatDurationTime }}</span>
+        </div>
+
         <div class="operators">
-          <!-- 播放模式 依序、隨機、循環 -->
+          <!-- 播放模式： 依序、隨機、循環 -->
           <div class="icon i-left">
             <i :class="modeIcon" @click="changeMode" />
           </div>
+
+          <!-- 前一首 -->
           <div class="icon i-left" :class="disableClass">
             <i class="icon-prev" @click="prev" />
           </div>
+
+          <!-- 播放、暫停 -->
           <div class="icon i-center" :class="disableClass">
             <i :class="playIcon" @click="togglePlay" />
           </div>
+
+          <!-- 下一首 -->
           <div class="icon i-right" :class="disableClass">
             <i class="icon-next" @click="next" />
           </div>
+
+          <!-- 收藏 -->
           <div class="icon i-right">
             <i
               :class="getFavoriteIcon(currentSong)"
@@ -38,7 +54,13 @@
       </div>
     </div>
 
-    <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" />
+    <audio
+      ref="audioRef"
+      @pause="pause"
+      @canplay="ready"
+      @error="error"
+      @timeupdate="updateTime"
+    />
   </div>
 </template>
 
@@ -48,13 +70,19 @@ import { useStore } from 'vuex'
 import useMode from './useMode'
 import usePlay from './usePlay'
 import useFavorite from './useFavorite'
+import ProgressBar from '@/components/Player/ProgressBar'
+import { formatTime } from '@/assets/js/utils'
 
 export default {
   name: 'Player',
+  components: {
+    ProgressBar
+  },
   setup() {
     // data
     const audioRef = ref(null)
     const songReady = ref(false)
+    const currentTime = ref(0)
 
     // vuex
     const store = useStore()
@@ -70,6 +98,15 @@ export default {
     const disableClass = computed(() => {
       return songReady.value ? '' : 'disable'
     })
+
+    const progress = computed(
+      () => currentTime.value / currentSong.value.duration
+    )
+
+    const formatCurrentTime = computed(() => formatTime(currentTime))
+    const formatDurationTime = computed(() =>
+      formatTime(currentSong.value.duration)
+    )
 
     // watch
     watch(currentSong, newSong => {
@@ -102,6 +139,10 @@ export default {
       songReady.value = true
     }
 
+    const updateTime = e => {
+      currentTime.value = e.target.currentTime
+    }
+
     // hooks
     const { togglePlay, next, prev, pause } = usePlay({ audioRef, songReady })
     const { modeIcon, changeMode } = useMode()
@@ -111,7 +152,10 @@ export default {
       audioRef,
       fullScreen,
       currentSong,
+      formatCurrentTime,
+      formatDurationTime,
       goBack,
+      progress,
       playIcon,
       togglePlay,
       pause,
@@ -120,6 +164,7 @@ export default {
       ready,
       error,
       disableClass,
+      updateTime,
       // mode
       modeIcon,
       changeMode,
