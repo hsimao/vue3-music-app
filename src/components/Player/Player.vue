@@ -25,6 +25,10 @@
               />
             </div>
           </div>
+
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric">{{ playingLyric }}</div>
+          </div>
         </div>
 
         <!-- 歌詞 -->
@@ -32,6 +36,7 @@
           :songReady="songReady"
           ref="lyricRef"
           :currentTime="currentTime"
+          @updateLyric="updateLyric"
         />
       </div>
 
@@ -116,6 +121,7 @@ export default {
     const lyricRef = ref(null)
     const songReady = ref(false)
     const currentTime = ref(0)
+    const playingLyric = ref('')
     let progressChanging = false
 
     // vuex
@@ -198,6 +204,10 @@ export default {
       }
     }
 
+    const updateLyric = lyric => {
+      playingLyric.value = lyric
+    }
+
     const onProgressChanging = progress => {
       progressChanging = true
       currentTime.value = currentSong.value.duration * progress
@@ -231,6 +241,7 @@ export default {
       fullScreen,
       currentSong,
       currentTime,
+      playingLyric,
       formatCurrentTime,
       formatDurationTime,
       songReady,
@@ -246,6 +257,7 @@ export default {
       error,
       disableClass,
       updateTime,
+      updateLyric,
       onProgressChanging,
       onProgressChanged,
       // mode
@@ -336,7 +348,6 @@ export default {
         width: 100%;
         height: 0;
         padding-top: 80%;
-        display: none;
         .cd-wrapper {
           position: absolute;
           left: 10%;

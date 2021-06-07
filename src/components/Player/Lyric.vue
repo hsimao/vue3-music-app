@@ -11,6 +11,9 @@
           {{ line.txt }}
         </p>
       </div>
+      <div class="pure-music" v-show="pureMusicLyric">
+        <p>{{ pureMusicLyric }}</p>
+      </div>
     </div>
   </scroll>
 </template>
@@ -27,6 +30,7 @@ export default {
   components: {
     Scroll
   },
+  emits: ['updateLyric'],
   props: {
     songReady: {
       type: Boolean,
@@ -37,11 +41,12 @@ export default {
       default: 0
     }
   },
-  setup(props) {
+  setup(props, { emit }) {
     const currentLyric = ref(null)
     const currentLineNum = ref(0)
     const lyricScrollRef = ref(null)
     const lyricListRef = ref(null)
+    const pureMusicLyric = ref('')
 
     const store = useStore()
     const currentSong = computed(() => store.getters.currentSong)
@@ -65,9 +70,16 @@ export default {
       if (currentSong.value.lyric !== lyric) return
 
       currentLyric.value = new Lyric(lyric, handleUpdateLyric)
+      console.warn('currentLyric', currentLyric.value)
 
-      if (props.songReady) {
+      const hasLyric = currentLyric.value.lines.length > 0
+
+      if (hasLyric && props.songReady) {
         playLyric()
+      } else {
+        // "[00:00:00]此歌曲为没有填词的纯音乐，请您欣赏" => 此歌曲为没有填词的纯音乐，请您欣赏
+        pureMusicLyric.value = lyric.replace(/\[(\d{2}):(\d{2}):(\d{2})\]/g, '')
+        emit('updateLyric', pureMusicLyric.value)
       }
     }
 
@@ -75,9 +87,11 @@ export default {
       stopLyric()
       currentLyric.value = null
       currentLineNum.value = 0
+      emit('updateLyric', '')
     }
 
-    const handleUpdateLyric = ({ lineNum }) => {
+    const handleUpdateLyric = ({ lineNum, txt }) => {
+      emit('updateLyric', txt)
       currentLineNum.value = lineNum
       const scrollComponent = lyricScrollRef.value
       const listEl = lyricListRef.value
@@ -110,6 +124,7 @@ export default {
     return {
       currentLyric,
       currentLineNum,
+      pureMusicLyric,
       playLyric,
       stopLyric,
       lyricScrollRef,
