@@ -13,7 +13,7 @@
       </div>
 
       <div class="middle">
-        <div class="middle-l" :style="middleLStyle">
+        <div class="middle-l">
           <!-- 唱盤 -->
           <div ref="cdWrapperRef" class="cd-wrapper">
             <div ref="cdRef" class="cd">
@@ -26,6 +26,13 @@
             </div>
           </div>
         </div>
+
+        <!-- 歌詞 -->
+        <Lyric
+          :songReady="songReady"
+          ref="lyricRef"
+          :currentTime="currentTime"
+        />
       </div>
 
       <div class="bottom">
@@ -93,17 +100,20 @@ import usePlay from './usePlay'
 import useFavorite from './useFavorite'
 import useCD from './useCD'
 import ProgressBar from '@/components/Player/ProgressBar'
+import Lyric from '@/components/Player/Lyric'
 import { formatTime } from '@/assets/js/utils'
 import { PLAY_MODE } from '@/assets/js/constant'
 
 export default {
   name: 'Player',
   components: {
-    ProgressBar
+    ProgressBar,
+    Lyric
   },
   setup() {
     // data
     const audioRef = ref(null)
+    const lyricRef = ref(null)
     const songReady = ref(false)
     const currentTime = ref(0)
     let progressChanging = false
@@ -147,7 +157,14 @@ export default {
     watch(playing, newPlaying => {
       if (!songReady.value) return
       const audioEl = audioRef.value
-      newPlaying ? audioEl.play() : audioEl.pause()
+
+      if (newPlaying) {
+        audioEl.play()
+        lyricRef.value.playLyric()
+      } else {
+        audioEl.pause()
+        lyricRef.value.stopLyric()
+      }
     })
 
     // methods
@@ -158,6 +175,7 @@ export default {
     const ready = () => {
       if (songReady.value) return
       songReady.value = true
+      lyricRef.value.playLyric()
     }
 
     const error = () => {
@@ -183,12 +201,15 @@ export default {
     const onProgressChanging = progress => {
       progressChanging = true
       currentTime.value = currentSong.value.duration * progress
+      lyricRef.value.playLyric()
+      lyricRef.value.stopLyric()
     }
 
     const onProgressChanged = progress => {
       progressChanging = false
       audioRef.value.currentTime = currentTime.value =
         currentSong.value.duration * progress
+      lyricRef.value.playLyric()
 
       if (!playing.value) {
         store.commit('setPlaying', true)
@@ -206,10 +227,13 @@ export default {
 
     return {
       audioRef,
+      lyricRef,
       fullScreen,
       currentSong,
+      currentTime,
       formatCurrentTime,
       formatDurationTime,
+      songReady,
       goBack,
       progress,
       playIcon,
@@ -312,6 +336,7 @@ export default {
         width: 100%;
         height: 0;
         padding-top: 80%;
+        display: none;
         .cd-wrapper {
           position: absolute;
           left: 10%;

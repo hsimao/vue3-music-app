@@ -20,3 +20,24 @@ export function processSongs(songs) {
       .filter(song => song.url && song.url.indexOf('vkey') > -1)
   })
 }
+
+const lyricMap = {}
+
+export function getLyric(song) {
+  if (song.lyric) {
+    return Promise.resolve(song.lyric)
+  }
+  if (lyricMap[song.mid]) {
+    return Promise.resolve(lyricMap[song.mid])
+  }
+
+  return get('/api/getLyric', {
+    mid: song.mid
+  }).then(result => {
+    lyricMap[song.mid] = result?.lyric
+
+    return lyricMap[song.mid]
+      ? lyricMap[song.mid]
+      : '[00:00:00]該歌曲暫時無法獲取歌曲'
+  })
+}
