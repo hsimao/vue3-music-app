@@ -12,6 +12,22 @@
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
 
+      <div class="middle">
+        <div class="middle-l" :style="middleLStyle">
+          <!-- 唱盤 -->
+          <div ref="cdWrapperRef" class="cd-wrapper">
+            <div ref="cdRef" class="cd">
+              <img
+                ref="cdImageRef"
+                class="image"
+                :class="cdClass"
+                :src="currentSong.pic"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="bottom">
         <!-- 播放進度條 -->
         <div class="progress-wrapper">
@@ -75,6 +91,7 @@ import { useStore } from 'vuex'
 import useMode from './useMode'
 import usePlay from './usePlay'
 import useFavorite from './useFavorite'
+import useCD from './useCD'
 import ProgressBar from '@/components/Player/ProgressBar'
 import { formatTime } from '@/assets/js/utils'
 import { PLAY_MODE } from '@/assets/js/constant'
@@ -185,6 +202,7 @@ export default {
     })
     const { modeIcon, changeMode } = useMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
+    const { cdClass, cdRef, cdImageRef } = useCD()
 
     return {
       audioRef,
@@ -211,7 +229,11 @@ export default {
       changeMode,
       // favorite
       getFavoriteIcon,
-      toggleFavorite
+      toggleFavorite,
+      // cd
+      cdRef,
+      cdImageRef,
+      cdClass
     }
   }
 }
@@ -273,6 +295,61 @@ export default {
         text-align: center;
         font-size: $font-size-medium;
         line-height: 20px;
+      }
+    }
+
+    .middle {
+      position: fixed;
+      width: 100%;
+      top: 80px;
+      bottom: 170px;
+      white-space: nowrap;
+      font-size: 0;
+      .middle-l {
+        display: inline-block;
+        vertical-align: top;
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-top: 80%;
+        .cd-wrapper {
+          position: absolute;
+          left: 10%;
+          top: 0;
+          width: 80%;
+          box-sizing: border-box;
+          height: 100%;
+          .cd {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            img {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+              box-sizing: border-box;
+              border-radius: 50%;
+              border: 10px solid rgba(255, 255, 255, 0.1);
+            }
+            .playing {
+              animation: rotate 20s linear infinite;
+            }
+          }
+        }
+        .playing-lyric-wrapper {
+          width: 80%;
+          margin: 30px auto 0 auto;
+          overflow: hidden;
+          text-align: center;
+          .playing-lyric {
+            height: 20px;
+            line-height: 20px;
+            font-size: $font-size-medium;
+            color: $color-text-l;
+          }
+        }
       }
     }
 
