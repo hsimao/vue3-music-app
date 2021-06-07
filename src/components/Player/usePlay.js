@@ -51,7 +51,8 @@ export default function usePlay({ audioRef, songReady }) {
     const audioEl = audioRef.value
     audioEl.currentTime = 0
     audioEl.play()
+    store.commit('setPlaying', true)
   }
 
-  return { togglePlay, next, prev, pause }
+  return { togglePlay, next, prev, pause, loop }
 }

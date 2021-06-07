@@ -14,7 +14,7 @@ export function processSongs(songs) {
         // song.url = map[song.mid]
         // 取得播放網址 api 有鎖 ip, 在此寫固定播放網址方便開發
         song.url =
-          'http://isure.stream.qqmusic.qq.com/C400004AswpM0Yuu2b.m4a?guid=743761644&vkey=488DF4C40C7911A4543F75A970324CC7D7CEB0C9BF5868F3B300716F4A343BE2D197AEFB37DFA029B7FA43B9A4EA31AC1DAB8A94CDC0C448&uin=&fromtag=38'
+          'http://isure.stream.qqmusic.qq.com/C400002z2pz700xhKy.m4a?guid=2927659970&vkey=0E5A0D760D0362066675AC741DD9F54E1A6265581DEF14842B3CA16FBCD1C9D48E9CF8359E2E06BA588FD37B2B03D989DB3EAA8EAB38F435&uin=&fromtag=38'
         return song
       })
       .filter(song => song.url && song.url.indexOf('vkey') > -1)
