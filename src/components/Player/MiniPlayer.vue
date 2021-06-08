@@ -3,13 +3,7 @@
     <div class="mini-player" v-show="!fullScreen" @click="showNormalPlayer">
       <div class="cd-wrapper">
         <div ref="cdRef" class="cd">
-          <img
-            ref="cdImageRef"
-            width="40"
-            height="40"
-            :class="cdClass"
-            :src="currentSong.pic"
-          />
+          <img ref="cdImageRef" width="40" height="40" :class="cdClass" :src="currentSong.pic" />
         </div>
       </div>
 
@@ -22,26 +16,36 @@
         </div>
       </div>
 
+      <!-- 播放按鈕 -->
       <div class="control">
         <ProgressCircle :radius="32" :progress="progress">
           <i class="icon-mini" :class="miniPlayIcon" @click.stop="togglePlay" />
         </ProgressCircle>
       </div>
+
+      <!-- 播放列表按鈕 -->
+      <div class="control" @click.stop="showPlaylist">
+        <i class="icon-playlist"></i>
+      </div>
+
+      <Playlist ref="playlistRef" />
     </div>
   </transition>
 </template>
 
 <script>
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import useCD from './useCD'
 import useMiniSlider from './useMiniSlider'
 import ProgressCircle from './ProgressCircle'
+import Playlist from './Playlist'
 
 export default {
   name: 'MiniPlayer',
   components: {
-    ProgressCircle
+    ProgressCircle,
+    Playlist
   },
   props: {
     progress: {
@@ -51,6 +55,7 @@ export default {
     togglePlay: Function
   },
   setup() {
+    const playlistRef = ref(null)
     const store = useStore()
     const playing = computed(() => store.state.playing)
     const playlist = computed(() => store.state.playlist)
@@ -65,15 +70,21 @@ export default {
       store.commit('setFullScreen', true)
     }
 
+    const showPlaylist = () => {
+      playlistRef.value.show()
+    }
+
     const { cdClass, cdRef, cdImageRef } = useCD()
     const { sliderWrapperRef } = useMiniSlider()
 
     return {
+      playlistRef,
       playlist,
       fullScreen,
       currentSong,
       showNormalPlayer,
       miniPlayIcon,
+      showPlaylist,
       // cd
       cdClass,
       cdRef,

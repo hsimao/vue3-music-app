@@ -19,6 +19,19 @@ export default function useMode() {
     }
   })
 
+  const modeText = computed(() => {
+    switch (playMode.value) {
+      case PLAY_MODE.sequence:
+        return '順序播放'
+      case PLAY_MODE.random:
+        return '隨機播放'
+      case PLAY_MODE.loop:
+        return '單曲循環'
+      default:
+        return '順序播放'
+    }
+  })
+
   const changeMode = () => {
     // 0 1 2
     const mode = (playMode.value + 1) % 3
@@ -26,5 +39,5 @@ export default function useMode() {
     store.dispatch('changeMode', mode)
   }
 
-  return { modeIcon, changeMode }
+  return { modeIcon, modeText, changeMode }
 }
