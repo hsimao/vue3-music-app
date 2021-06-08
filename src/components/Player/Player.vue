@@ -1,5 +1,5 @@
 <template>
-  <div class="player">
+  <div class="player" v-show="playlist.length">
     <div class="normal-player" v-show="fullScreen">
       <div class="background">
         <img :src="currentSong.pic" :alt="currentSong.name" />
@@ -58,6 +58,7 @@
           <span class="time time-l">{{ formatCurrentTime }}</span>
           <div class="progress-bar-wrapper">
             <ProgressBar
+              ref="progressBarRef"
               :progress="progress"
               @progress-changing="onProgressChanging"
               @progress-changed="onProgressChanged"
@@ -98,6 +99,8 @@
       </div>
     </div>
 
+    <MiniPlayer :progress="progress" :toggle-play="togglePlay" />
+
     <audio
       ref="audioRef"
       @pause="pause"
@@ -110,7 +113,7 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import useMode from './useMode'
 import usePlay from './usePlay'
@@ -119,6 +122,7 @@ import useCD from './useCD'
 import useMiddleInteractive from './useMiddleInteractive'
 import ProgressBar from '@/components/Player/ProgressBar'
 import Lyric from '@/components/Player/Lyric'
+import MiniPlayer from '@/components/Player/MiniPlayer'
 import { formatTime } from '@/assets/js/utils'
 import { PLAY_MODE } from '@/assets/js/constant'
 
@@ -126,12 +130,14 @@ export default {
   name: 'Player',
   components: {
     ProgressBar,
+    MiniPlayer,
     Lyric
   },
   setup() {
     // data
     const audioRef = ref(null)
     const lyricRef = ref(null)
+    const progressBarRef = ref(null)
     const songReady = ref(false)
     const currentTime = ref(0)
     const playingLyric = ref('')
@@ -143,6 +149,7 @@ export default {
     const currentSong = computed(() => store.getters.currentSong)
     const playing = computed(() => store.state.playing)
     const playMode = computed(() => store.state.playMode)
+    const playlist = computed(() => store.state.playlist)
 
     // computed
     const playIcon = computed(() =>
@@ -183,6 +190,13 @@ export default {
       } else {
         audioEl.pause()
         lyricRef.value.stopLyric()
+      }
+    })
+
+    watch(fullScreen, async newFullScreen => {
+      if (newFullScreen) {
+        await nextTick()
+        progressBarRef.value.setOffset(progress.value)
       }
     })
 
@@ -259,6 +273,7 @@ export default {
     return {
       audioRef,
       lyricRef,
+      progressBarRef,
       fullScreen,
       currentSong,
       currentTime,
@@ -269,6 +284,7 @@ export default {
       goBack,
       progress,
       playIcon,
+      playlist,
       togglePlay,
       pause,
       prev,
