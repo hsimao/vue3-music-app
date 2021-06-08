@@ -12,8 +12,13 @@
         <h2 class="subtitle">{{ currentSong.singer }}</h2>
       </div>
 
-      <div class="middle">
-        <div class="middle-l">
+      <div
+        class="middle"
+        @touchstart.prevent="onMiddleTouchStart"
+        @touchmove.prevent="onMiddleTouchMove"
+        @touchend.prevent="onMiddleTouchEnd"
+      >
+        <div class="middle-l" :style="middleLStyle">
           <!-- 唱盤 -->
           <div ref="cdWrapperRef" class="cd-wrapper">
             <div ref="cdRef" class="cd">
@@ -34,6 +39,7 @@
         <!-- 歌詞 -->
         <Lyric
           :songReady="songReady"
+          :style="middleRStyle"
           ref="lyricRef"
           :currentTime="currentTime"
           @updateLyric="updateLyric"
@@ -41,6 +47,12 @@
       </div>
 
       <div class="bottom">
+        <!-- cd、歌詞 切換選單 dot 樣式 -->
+        <div class="dot-wrapper">
+          <span class="dot" :class="{ active: currentShow === 'cd' }"></span>
+          <span class="dot" :class="{ active: currentShow === 'lyric' }"></span>
+        </div>
+
         <!-- 播放進度條 -->
         <div class="progress-wrapper">
           <span class="time time-l">{{ formatCurrentTime }}</span>
@@ -104,6 +116,7 @@ import useMode from './useMode'
 import usePlay from './usePlay'
 import useFavorite from './useFavorite'
 import useCD from './useCD'
+import useMiddleInteractive from './useMiddleInteractive'
 import ProgressBar from '@/components/Player/ProgressBar'
 import Lyric from '@/components/Player/Lyric'
 import { formatTime } from '@/assets/js/utils'
@@ -234,6 +247,14 @@ export default {
     const { modeIcon, changeMode } = useMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
     const { cdClass, cdRef, cdImageRef } = useCD()
+    const {
+      currentShow,
+      middleLStyle,
+      middleRStyle,
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd
+    } = useMiddleInteractive()
 
     return {
       audioRef,
@@ -269,7 +290,14 @@ export default {
       // cd
       cdRef,
       cdImageRef,
-      cdClass
+      cdClass,
+      // middle interactive
+      currentShow,
+      middleLStyle,
+      middleRStyle,
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd
     }
   }
 }
