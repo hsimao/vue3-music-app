@@ -11,10 +11,16 @@ export default function useMiddleInteractive() {
 
   const onMiddleTouchStart = e => {
     touch.startX = e.touches[0].pageX
+    touch.startY = e.touches[0].pageY
+    touch.directionLocked = ''
   }
 
   const onMiddleTouchMove = e => {
     const deltaX = e.touches[0].pageX - touch.startX
+    const deltaY = e.touches[0].pageY - touch.startY
+
+    if (!canChange(deltaX, deltaY)) return
+
     const left = currentView === 'cd' ? 0 : -window.innerWidth
 
     // 限制 0 ~ -window.innerWidth 區間
@@ -26,6 +32,20 @@ export default function useMiddleInteractive() {
     updateCurrentShow()
     updateMiddleLStyle(0, 1 - touch.percent)
     updateMiddleRStyle(0, offsetWidth)
+  }
+
+  // 禁止 x 軸跟 y 軸可以同時動作
+  // 依據 x、y 軸偏移距離比較, 來判斷是否要進行切頁
+  const canChange = (deltaX, deltaY) => {
+    const absDeltaX = Math.abs(deltaX)
+    const absDeltaY = Math.abs(deltaY)
+
+    if (!touch.directionLocked) {
+      // 依據左右拖曳距離, 設定鎖定方向
+      touch.directionLocked = absDeltaX >= absDeltaY ? 'h' : 'v'
+    }
+
+    return touch.directionLocked !== 'v'
   }
 
   const onMiddleTouchEnd = () => {

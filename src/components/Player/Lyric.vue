@@ -70,7 +70,6 @@ export default {
       if (currentSong.value.lyric !== lyric) return
 
       currentLyric.value = new Lyric(lyric, handleUpdateLyric)
-      console.warn('currentLyric', currentLyric.value)
 
       const hasLyric = currentLyric.value.lines.length > 0
 
