@@ -1,103 +1,114 @@
 <template>
   <div class="player" v-show="playlist.length">
-    <div class="normal-player" v-show="fullScreen">
-      <div class="background">
-        <img :src="currentSong.pic" :alt="currentSong.name" />
-      </div>
-      <div class="top">
-        <div class="back" @click="goBack">
-          <i class="icon-back"></i>
+    <transition
+      name="normal"
+      @enter="enter"
+      @after-enter="afterEnter"
+      @leave="leave"
+      @after-leave="afterLeave"
+    >
+      <div class="normal-player" v-show="fullScreen">
+        <div class="background">
+          <img :src="currentSong.pic" :alt="currentSong.name" />
         </div>
-        <h1 class="title">{{ currentSong.name }}</h1>
-        <h2 class="subtitle">{{ currentSong.singer }}</h2>
-      </div>
+        <div class="top">
+          <div class="back" @click="goBack">
+            <i class="icon-back"></i>
+          </div>
+          <h1 class="title">{{ currentSong.name }}</h1>
+          <h2 class="subtitle">{{ currentSong.singer }}</h2>
+        </div>
 
-      <div
-        class="middle"
-        @touchstart.prevent="onMiddleTouchStart"
-        @touchmove.prevent="onMiddleTouchMove"
-        @touchend.prevent="onMiddleTouchEnd"
-      >
-        <div class="middle-l" :style="middleLStyle">
-          <!-- 唱盤 -->
-          <div ref="cdWrapperRef" class="cd-wrapper">
-            <div ref="cdRef" class="cd">
-              <img
-                ref="cdImageRef"
-                class="image"
-                :class="cdClass"
-                :src="currentSong.pic"
-              />
+        <div
+          class="middle"
+          @touchstart.prevent="onMiddleTouchStart"
+          @touchmove.prevent="onMiddleTouchMove"
+          @touchend.prevent="onMiddleTouchEnd"
+        >
+          <div class="middle-l" :style="middleLStyle">
+            <!-- 唱盤 -->
+            <div ref="cdWrapperRef" class="cd-wrapper">
+              <div ref="cdRef" class="cd">
+                <img
+                  ref="cdImageRef"
+                  class="image"
+                  :class="cdClass"
+                  :src="currentSong.pic"
+                />
+              </div>
+            </div>
+
+            <div class="playing-lyric-wrapper">
+              <div class="playing-lyric">{{ playingLyric }}</div>
             </div>
           </div>
 
-          <div class="playing-lyric-wrapper">
-            <div class="playing-lyric">{{ playingLyric }}</div>
-          </div>
+          <!-- 歌詞 -->
+          <Lyric
+            :songReady="songReady"
+            :style="middleRStyle"
+            ref="lyricRef"
+            :currentTime="currentTime"
+            @updateLyric="updateLyric"
+          />
         </div>
 
-        <!-- 歌詞 -->
-        <Lyric
-          :songReady="songReady"
-          :style="middleRStyle"
-          ref="lyricRef"
-          :currentTime="currentTime"
-          @updateLyric="updateLyric"
-        />
+        <div class="bottom">
+          <!-- cd、歌詞 切換選單 dot 樣式 -->
+          <div class="dot-wrapper">
+            <span class="dot" :class="{ active: currentShow === 'cd' }"></span>
+            <span
+              class="dot"
+              :class="{ active: currentShow === 'lyric' }"
+            ></span>
+          </div>
+
+          <!-- 播放進度條 -->
+          <div class="progress-wrapper">
+            <span class="time time-l">{{ formatCurrentTime }}</span>
+            <div class="progress-bar-wrapper">
+              <ProgressBar
+                ref="progressBarRef"
+                :progress="progress"
+                @progress-changing="onProgressChanging"
+                @progress-changed="onProgressChanged"
+              />
+            </div>
+            <span class="time time-r">{{ formatDurationTime }}</span>
+          </div>
+
+          <div class="operators">
+            <!-- 播放模式： 依序、隨機、循環 -->
+            <div class="icon i-left">
+              <i :class="modeIcon" @click="changeMode" />
+            </div>
+
+            <!-- 前一首 -->
+            <div class="icon i-left" :class="disableClass">
+              <i class="icon-prev" @click="prev" />
+            </div>
+
+            <!-- 播放、暫停 -->
+            <div class="icon i-center" :class="disableClass">
+              <i :class="playIcon" @click="togglePlay" />
+            </div>
+
+            <!-- 下一首 -->
+            <div class="icon i-right" :class="disableClass">
+              <i class="icon-next" @click="next" />
+            </div>
+
+            <!-- 收藏 -->
+            <div class="icon i-right">
+              <i
+                :class="getFavoriteIcon(currentSong)"
+                @click="toggleFavorite(currentSong)"
+              />
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div class="bottom">
-        <!-- cd、歌詞 切換選單 dot 樣式 -->
-        <div class="dot-wrapper">
-          <span class="dot" :class="{ active: currentShow === 'cd' }"></span>
-          <span class="dot" :class="{ active: currentShow === 'lyric' }"></span>
-        </div>
-
-        <!-- 播放進度條 -->
-        <div class="progress-wrapper">
-          <span class="time time-l">{{ formatCurrentTime }}</span>
-          <div class="progress-bar-wrapper">
-            <ProgressBar
-              ref="progressBarRef"
-              :progress="progress"
-              @progress-changing="onProgressChanging"
-              @progress-changed="onProgressChanged"
-            />
-          </div>
-          <span class="time time-r">{{ formatDurationTime }}</span>
-        </div>
-
-        <div class="operators">
-          <!-- 播放模式： 依序、隨機、循環 -->
-          <div class="icon i-left">
-            <i :class="modeIcon" @click="changeMode" />
-          </div>
-
-          <!-- 前一首 -->
-          <div class="icon i-left" :class="disableClass">
-            <i class="icon-prev" @click="prev" />
-          </div>
-
-          <!-- 播放、暫停 -->
-          <div class="icon i-center" :class="disableClass">
-            <i :class="playIcon" @click="togglePlay" />
-          </div>
-
-          <!-- 下一首 -->
-          <div class="icon i-right" :class="disableClass">
-            <i class="icon-next" @click="next" />
-          </div>
-
-          <!-- 收藏 -->
-          <div class="icon i-right">
-            <i
-              :class="getFavoriteIcon(currentSong)"
-              @click="toggleFavorite(currentSong)"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    </transition>
 
     <MiniPlayer :progress="progress" :toggle-play="togglePlay" />
 
@@ -120,6 +131,7 @@ import usePlay from './usePlay'
 import useFavorite from './useFavorite'
 import useCD from './useCD'
 import useMiddleInteractive from './useMiddleInteractive'
+import useAnimation from './useAnimation'
 import ProgressBar from '@/components/Player/ProgressBar'
 import Lyric from '@/components/Player/Lyric'
 import MiniPlayer from '@/components/Player/MiniPlayer'
@@ -269,6 +281,13 @@ export default {
       onMiddleTouchMove,
       onMiddleTouchEnd
     } = useMiddleInteractive()
+    const {
+      cdWrapperRef,
+      enter,
+      afterEnter,
+      leave,
+      afterLeave
+    } = useAnimation()
 
     return {
       audioRef,
@@ -313,7 +332,13 @@ export default {
       middleRStyle,
       onMiddleTouchStart,
       onMiddleTouchMove,
-      onMiddleTouchEnd
+      onMiddleTouchEnd,
+      // animation
+      cdWrapperRef,
+      enter,
+      afterEnter,
+      leave,
+      afterLeave
     }
   }
 }
@@ -507,6 +532,25 @@ export default {
         .icon-favorite {
           color: $color-sub-theme;
         }
+      }
+    }
+
+    &.normal-enter-active,
+    &.normal-leave-active {
+      transition: all 0.6s;
+      .top,
+      .bottom {
+        transition: all 0.6s cubic-bezier(0.45, 0, 0.55, 1);
+      }
+    }
+    &.normal-enter-from,
+    &.normal-leave-to {
+      opacity: 0;
+      .top {
+        transform: translate3d(0, -100px, 0);
+      }
+      .bottom {
+        transform: translate3d(0, 100px, 0);
       }
     }
   }
