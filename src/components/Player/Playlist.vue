@@ -11,7 +11,7 @@
           </div>
 
           <Scroll class="list-content" ref="scrollRef">
-            <ul ref="listRef">
+            <transition-group ref="listRef" name="list" tag="ul">
               <li
                 class="item"
                 :class="currentItemClass(song)"
@@ -24,11 +24,11 @@
                 <span class="favorite" @click="toggleFavorite(song)">
                   <i :class="getFavoriteIcon(song)" />
                 </span>
-                <span class="delete">
+                <span class="delete" @click.stop="removeSong(song)">
                   <i class="icon-delete"></i>
                 </span>
               </li>
-            </ul>
+            </transition-group>
           </Scroll>
 
           <div class="list-footer" @click="hide">
@@ -99,7 +99,7 @@ export default {
       const index = sequenceList.value.findIndex(
         song => song.id === currentSong.value.id
       )
-      const target = listRef.value.children[index]
+      const target = listRef.value.$el.children[index]
       scrollRef.value.scroll.scrollToElement(target, 600)
     }
 
@@ -107,6 +107,10 @@ export default {
       const index = playlist.value.findIndex(item => item.id === song.id)
       store.commit('setCurrentIndex', index)
       store.commit('setPlaying', true)
+    }
+
+    const removeSong = song => {
+      store.dispatch('removeSong', song)
     }
 
     // hook
@@ -122,6 +126,7 @@ export default {
       getCurrentIcon,
       currentItemClass,
       selectSong,
+      removeSong,
       show,
       hide,
       // mode
