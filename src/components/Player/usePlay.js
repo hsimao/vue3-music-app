@@ -20,10 +20,6 @@ export default function usePlay({ audioRef, songReady }) {
     if (list.length === 1) return loop()
 
     store.commit('setCurrentIndex', index)
-
-    if (!playing.value) {
-      store.commit('setPlaying', true)
-    }
   }
 
   const next = () => {

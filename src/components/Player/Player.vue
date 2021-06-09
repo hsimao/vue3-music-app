@@ -190,6 +190,7 @@ export default {
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
+      store.commit('setPlaying', true)
     })
 
     watch(playing, newPlaying => {

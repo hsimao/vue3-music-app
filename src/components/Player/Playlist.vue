@@ -24,7 +24,11 @@
                 <span class="favorite" @click="toggleFavorite(song)">
                   <i :class="getFavoriteIcon(song)" />
                 </span>
-                <span class="delete" @click.stop="removeSong(song)">
+                <span
+                  class="delete"
+                  :class="{ disable: removing }"
+                  @click.stop="removeSong(song)"
+                >
                   <i class="icon-delete"></i>
                 </span>
               </li>
@@ -54,6 +58,7 @@ export default {
   },
   setup() {
     const visible = ref(false)
+    const removing = ref(false)
     const scrollRef = ref(null)
     const listRef = ref(null)
 
@@ -64,11 +69,12 @@ export default {
     const currentSong = computed(() => store.getters.currentSong)
 
     // watch
-    watch(currentSong, async () => {
-      if (visible.value) {
-        await nextTick()
-        scrollToCurrent()
+    watch(currentSong, async newSong => {
+      if (!visible.value || !newSong.value) {
+        return
       }
+      await nextTick()
+      scrollToCurrent()
     })
 
     // methods
@@ -99,6 +105,7 @@ export default {
       const index = sequenceList.value.findIndex(
         song => song.id === currentSong.value.id
       )
+      if (index === -1) return
       const target = listRef.value.$el.children[index]
       scrollRef.value.scroll.scrollToElement(target, 600)
     }
@@ -110,7 +117,15 @@ export default {
     }
 
     const removeSong = song => {
+      if (removing.value) return
+      removing.value = true
+
       store.dispatch('removeSong', song)
+
+      // 預防刪除動畫尚未結束時又觸發一次刪除, 導致 index 異常
+      setTimeout(() => {
+        removing.value = false
+      }, 300)
     }
 
     // hook
@@ -123,6 +138,7 @@ export default {
       visible,
       playlist,
       sequenceList,
+      removing,
       getCurrentIcon,
       currentItemClass,
       selectSong,

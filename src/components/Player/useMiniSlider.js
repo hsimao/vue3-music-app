@@ -32,7 +32,6 @@ export default function useMiniSlider() {
 
     slider.value.on('slidePageChanged', ({ pageX }) => {
       store.commit('setCurrentIndex', pageX)
-      store.commit('setPlaying', true)
     })
   }
 
@@ -55,6 +54,14 @@ export default function useMiniSlider() {
     watch(currentIndex, newIndex => {
       if (sliderVal && sliderShow.value) {
         sliderVal.goToPage(newIndex, 0, 0)
+      }
+    })
+
+    // 監聽 playlist, 捕獲當有刪除 playlist 操作時, 需要重新 refresh scroll
+    watch(playlist, async () => {
+      if (sliderVal && sliderShow.value) {
+        await nextTick()
+        // sliderVal.refresh()
       }
     })
   })
