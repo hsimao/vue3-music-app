@@ -58,10 +58,10 @@ export default function useMiniSlider() {
     })
 
     // 監聽 playlist, 捕獲當有刪除 playlist 操作時, 需要重新 refresh scroll
-    watch(playlist, async () => {
-      if (sliderVal && sliderShow.value) {
+    watch(playlist, async newList => {
+      if (sliderVal && sliderShow.value && newList.length) {
         await nextTick()
-        // sliderVal.refresh()
+        sliderVal.refresh()
       }
     })
   })

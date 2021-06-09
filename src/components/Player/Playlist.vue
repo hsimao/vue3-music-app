@@ -7,6 +7,10 @@
             <h1 class="title">
               <i class="icon" :class="modeIcon" @click="changeMode" />
               <span class="text">{{ modeText }}</span>
+
+              <span class="clear" @click="showConfirm">
+                <i class="icon-clear" />
+              </span>
             </h1>
           </div>
 
@@ -39,6 +43,13 @@
             <span>關閉</span>
           </div>
         </div>
+
+        <Confirm
+          ref="confirmRef"
+          text="是否清空播放列表？"
+          confirm-btn-text="清空"
+          @confirm="confirmClear"
+        />
       </div>
     </transition>
   </teleport>
@@ -50,17 +61,20 @@ import { useStore } from 'vuex'
 import useMode from './useMode'
 import useFavorite from './useFavorite'
 import Scroll from '@/components/base/Scroll/Scroll'
+import Confirm from '@/components/base/Confirm/Confirm'
 
 export default {
   name: 'Playlist',
   components: {
-    Scroll
+    Scroll,
+    Confirm
   },
   setup() {
     const visible = ref(false)
     const removing = ref(false)
     const scrollRef = ref(null)
     const listRef = ref(null)
+    const confirmRef = ref(null)
 
     // vuex
     const store = useStore()
@@ -122,10 +136,24 @@ export default {
 
       store.dispatch('removeSong', song)
 
+      // 播放列表都沒有時需要隱藏
+      if (!playlist.value.length) {
+        hide()
+      }
+
       // 預防刪除動畫尚未結束時又觸發一次刪除, 導致 index 異常
       setTimeout(() => {
         removing.value = false
       }, 300)
+    }
+
+    const showConfirm = () => {
+      confirmRef.value.show()
+    }
+
+    const confirmClear = () => {
+      store.dispatch('clearSongList')
+      hide()
     }
 
     // hook
@@ -135,6 +163,7 @@ export default {
     return {
       scrollRef,
       listRef,
+      confirmRef,
       visible,
       playlist,
       sequenceList,
@@ -145,6 +174,8 @@ export default {
       removeSong,
       show,
       hide,
+      showConfirm,
+      confirmClear,
       // mode
       modeIcon,
       modeText,
