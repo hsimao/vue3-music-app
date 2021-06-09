@@ -7,8 +7,8 @@ const TopList = () =>
 const Singer = () => import('@/views/Singer' /* webpackChunkName: "singer" */)
 const SingerDetail = () =>
   import('@/views/SingerDetail' /* webpackChunkName: "singer-detail" */)
-
 const Search = () => import('@/views/Search' /* webpackChunkName: "search" */)
+const Album = () => import('@/views/Album' /* webpackChunkName: "Album" */)
 
 const routes = [
   {
@@ -17,7 +17,8 @@ const routes = [
   },
   {
     path: '/recommend',
-    component: Recommend
+    component: Recommend,
+    children: [{ path: ':id', component: Album }]
   },
   {
     path: '/singer',

@@ -1,29 +1,29 @@
 <template>
-  <div class="singer-detail">
+  <div class="album">
     <MusicList :songs="songs" :loading="loading" :title="title" :pic="pic" />
   </div>
 </template>
 
 <script>
+import { getAlbum } from '@/service/recommend'
 import createDetailComponent from '@/components/hoc/CreateDetailComponent'
-import { getSingerDetail } from '@/service/singer'
-import { SINGER_KEY } from '@/assets/js/constant'
+import { ALBUM_KEY } from '@/assets/js/constant'
 
 export default createDetailComponent({
-  name: 'SingerDetailPage',
-  storageKey: SINGER_KEY,
-  fetch: getSingerDetail
+  name: 'AlbumPage',
+  storageKey: ALBUM_KEY,
+  fetch: getAlbum
 })
 </script>
 
 <style lang="scss" scoped>
-.singer-detail {
+.album {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
   z-index: 10;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
   background: $color-background;
 }
 </style>

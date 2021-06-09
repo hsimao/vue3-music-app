@@ -10,29 +10,38 @@
         <div class="recommend-list">
           <h1 class="list-title" v-show="!loading">熱門歌單推薦</h1>
           <ul>
-            <li v-for="item in albums" class="item" :key="item.id">
+            <li
+              v-for="item in albums"
+              class="item"
+              :key="item.id"
+              @click="selectItem(item)"
+            >
               <div class="icon">
                 <img width="60" height="60" v-lazy="item.pic" />
               </div>
               <div class="text">
-                <h2 class="name">
-                  {{ item.username }}
-                </h2>
-                <p class="title">
-                  {{ item.title }}
-                </p>
+                <h2 class="name">{{ item.username }}</h2>
+                <p class="title">{{ item.title }}</p>
               </div>
             </li>
           </ul>
         </div>
       </div>
     </Scroll>
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedAlbum" />
+      </transition>
+    </router-view>
   </div>
 </template>
 
 <script>
 import { getRecommend } from '@/service/recommend'
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import storage from 'good-storage'
+import { ALBUM_KEY } from '@/assets/js/constant'
 import Slider from '@/components/base/Slider/Slider'
 import Scroll from '@/components/hoc/WrapScroll'
 
@@ -45,8 +54,9 @@ export default {
   setup() {
     const sliders = ref([])
     const showSlider = ref(false)
-
+    const selectedAlbum = ref(null)
     const albums = ref([])
+    const router = useRouter()
 
     const loadingText = ref('正在載入中...')
 
@@ -61,7 +71,25 @@ export default {
       return !sliders.value.length && !showSlider.value.length
     })
 
-    return { sliders, showSlider, albums, loading, loadingText }
+    const selectItem = album => {
+      selectedAlbum.value = album
+      cacheAlbum(album)
+      router.push(`/recommend/${album.id}`)
+    }
+
+    const cacheAlbum = album => {
+      storage.session.set(ALBUM_KEY, album)
+    }
+
+    return {
+      sliders,
+      showSlider,
+      albums,
+      selectedAlbum,
+      loading,
+      loadingText,
+      selectItem
+    }
   }
 }
 </script>
