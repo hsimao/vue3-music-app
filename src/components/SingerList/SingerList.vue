@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import Scroll from '@/components/base/Scroll/Scroll'
+import Scroll from '@/components/hoc/WrapScroll'
 import useFixed from './useFixed'
 import useShortcut from './useShortcut'
 

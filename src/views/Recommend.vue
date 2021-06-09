@@ -34,7 +34,7 @@
 import { getRecommend } from '@/service/recommend'
 import { ref, onMounted, computed } from 'vue'
 import Slider from '@/components/base/Slider/Slider'
-import Scroll from '@/components/base/Scroll/Scroll'
+import Scroll from '@/components/hoc/WrapScroll'
 
 export default {
   name: 'RecommendPage',
