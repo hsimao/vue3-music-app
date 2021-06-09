@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import SongList from '@/components/base/SongList/SongList'
 import Scroll from '@/components/base/Scroll/Scroll'
 
@@ -79,6 +79,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['playlist']),
     // 依據滾動曲目列表來動態改變圖片顯示
     // 向上滾動遮蔽, 以及向下滾動放大效果
     bgImageStyle() {
@@ -125,7 +126,9 @@ export default {
       return { backdropFilter: `blur(${blur}px)` }
     },
     scrollStyle() {
-      return { top: `${this.imageHeight}px` }
+      // mini player 高度
+      const bottom = this.playlist.length ? '60px' : '0'
+      return { top: `${this.imageHeight}px`, bottom }
     },
     noResult() {
       return !this.loading && !this.songs.length
