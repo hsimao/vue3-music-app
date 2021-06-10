@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="rootRef"
     class="search-suggest"
     v-loading:[loadingText]="loading"
     v-no-result:[noResultText]="noResult"
@@ -21,14 +22,16 @@
           <p class="text">{{ song.singer }}-{{ song.name }}</p>
         </div>
       </li>
+      <div class="suggest-item" v-loading:[loadingText]="pullUpLoading"></div>
     </ul>
   </div>
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { search } from '@/service/search'
 import { processSongs } from '@/service/song'
+import usePullUpLoad from './usePullUpLoad'
 
 export default {
   name: 'SearchSuggest',
@@ -54,6 +57,7 @@ export default {
     const noResult = computed(() => {
       return !singer.value && !songs.value.length && !hasMore.value
     })
+    const pullUpLoading = computed(() => isPullUpLoad.value && hasMore.value)
 
     watch(
       () => props.query,
@@ -74,9 +78,41 @@ export default {
       songs.value = await processSongs(result.songs)
       singer.value = result.singer
       hasMore.value = result.hasMore
+      await nextTick()
+      await makeItScrollable()
     }
 
-    return { singer, songs, loading, loadingText, noResult, noResultText }
+    const searchMore = async () => {
+      if (!hasMore.value) return
+      page.value++
+      const result = await search(props.query, page.value, props.showSinger)
+      const newSongs = await processSongs(result.songs)
+      songs.value = songs.value.concat(newSongs)
+      hasMore.value = result.hasMore
+      await nextTick()
+      await makeItScrollable()
+    }
+
+    // 判斷回傳結果數量是否有撐滿當前可視畫面, 若沒將自動加載下一頁
+    const makeItScrollable = async () => {
+      if (scroll.value.maxScrollY >= -1) {
+        await searchMore()
+      }
+    }
+
+    const { scroll, rootRef, isPullUpLoad } = usePullUpLoad(searchMore)
+
+    return {
+      singer,
+      songs,
+      loading,
+      loadingText,
+      noResult,
+      noResultText,
+      pullUpLoading,
+      // pullUpLoad
+      rootRef
+    }
   }
 }
 </script>
