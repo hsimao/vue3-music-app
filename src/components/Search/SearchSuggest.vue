@@ -52,12 +52,16 @@ export default {
     const page = ref(1)
     const loadingText = ref('')
     const noResultText = ref('抱歉, 無搜尋結果')
+    const manualLoading = ref(false)
 
     const loading = computed(() => !singer.value && !songs.value.length)
     const noResult = computed(() => {
       return !singer.value && !songs.value.length && !hasMore.value
     })
     const pullUpLoading = computed(() => isPullUpLoad.value && hasMore.value)
+    const preventPullUpLoad = computed(() => {
+      return loading.value || manualLoading.value
+    })
 
     watch(
       () => props.query,
@@ -69,6 +73,8 @@ export default {
     )
 
     const searchFirst = async () => {
+      if (!props.query) return
+
       page.value = 1
       songs.value = []
       singer.value = null
@@ -83,7 +89,8 @@ export default {
     }
 
     const searchMore = async () => {
-      if (!hasMore.value) return
+      if (!hasMore.value || !props.query) return
+
       page.value++
       const result = await search(props.query, page.value, props.showSinger)
       const newSongs = await processSongs(result.songs)
@@ -96,11 +103,16 @@ export default {
     // 判斷回傳結果數量是否有撐滿當前可視畫面, 若沒將自動加載下一頁
     const makeItScrollable = async () => {
       if (scroll.value.maxScrollY >= -1) {
+        manualLoading.value = true
         await searchMore()
+        manualLoading.value = false
       }
     }
 
-    const { scroll, rootRef, isPullUpLoad } = usePullUpLoad(searchMore)
+    const { scroll, rootRef, isPullUpLoad } = usePullUpLoad(
+      searchMore,
+      preventPullUpLoad
+    )
 
     return {
       singer,
