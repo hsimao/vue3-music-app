@@ -3,8 +3,12 @@
     <div class="search-input-wrapper">
       <SearchInput v-model="query" />
     </div>
-    <div class="search-content">
+    <div class="search-content" v-show="!query">
       <SearchHotKeys :keys="hotKeys" @selected="updateQuery" />
+    </div>
+
+    <div class="search-result" v-show="query">
+      <SearchSuggest :query="query" />
     </div>
   </div>
 </template>
@@ -14,12 +18,14 @@ import { ref } from 'vue'
 import { getHotKeys } from '@/service/search'
 import SearchInput from '@/components/Search/SearchInput'
 import SearchHotKeys from '@/components/Search/SearchHotKeys'
+import SearchSuggest from '@/components/Search/SearchSuggest'
 
 export default {
   name: 'SearchPage',
   components: {
     SearchInput,
-    SearchHotKeys
+    SearchHotKeys,
+    SearchSuggest
   },
   setup() {
     const query = ref('')
@@ -55,7 +61,8 @@ export default {
     margin: 20px;
   }
 
-  .search-content {
+  .search-content,
+  .search-result {
     flex: 1;
     overflow: hidden;
   }
