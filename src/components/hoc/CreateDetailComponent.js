@@ -29,7 +29,9 @@ export default function createDetailComponent({ name, storageKey, fetch }) {
           result = data
         } else {
           const cached = storage.session.get(storageKey)
-          if (cached?.mid === this.dataMid) {
+          let cachedId = cached.mid || cached.id
+          cachedId += ''
+          if (cachedId === this.dataMid) {
             result = cached
           }
         }
@@ -40,7 +42,7 @@ export default function createDetailComponent({ name, storageKey, fetch }) {
         return this.cacheData?.pic
       },
       title() {
-        return this.cacheData?.name
+        return this.cacheData?.name || this.cacheData?.title
       },
       dataMid() {
         return this.$route.params.id
