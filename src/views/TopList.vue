@@ -2,7 +2,12 @@
   <div class="top-list" v-loading="loading">
     <scroll class="top-list-content">
       <ul>
-        <li class="item" v-for="item in topList" :key="item.id">
+        <li
+          class="item"
+          v-for="item in topList"
+          :key="item.id"
+          @click="selectItem(item)"
+        >
           <div class="icon">
             <img width="100" height="100" v-lazy="item.pic" />
           </div>
@@ -19,14 +24,20 @@
         </li>
       </ul>
     </scroll>
+
+    <router-view v-slot="{ Component }">
+      <transition appear name="slide">
+        <component :is="Component" :data="selectedTop" />
+      </transition>
+    </router-view>
   </div>
 </template>
 
 <script>
 import Scroll from '@/components/hoc/WrapScroll'
 import { getTopList } from '@/service/topList'
-// import { TOP_KEY } from '@/assets/js/constant'
-// import storage from 'good-storage'
+import { TOP_KEY } from '@/assets/js/constant'
+import storage from 'good-storage'
 
 export default {
   name: 'TopListPage',
@@ -36,13 +47,24 @@ export default {
   data() {
     return {
       topList: [],
-      loading: true
+      loading: true,
+      selectedTop: null
     }
   },
   async created() {
     const result = await getTopList()
     this.topList = result.topList
     this.loading = false
+  },
+  methods: {
+    selectItem(top) {
+      this.selectedTop = top
+      this.cacheTop(top)
+      this.$router.push(`/top-list/${top.id}`)
+    },
+    cacheTop(top) {
+      storage.session.set(TOP_KEY, top)
+    }
   }
 }
 </script>

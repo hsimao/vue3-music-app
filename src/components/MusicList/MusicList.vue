@@ -30,7 +30,7 @@
       v-no-result:[noResultText]="noResult"
     >
       <div class="song-list-wrapper">
-        <SongList :songs="songs" @select="selectSong" />
+        <SongList :songs="songs" :rank="rank" @select="selectSong" />
       </div>
     </Scroll>
   </div>
@@ -69,6 +69,10 @@ export default {
     noResultText: {
       type: String,
       default: '抱歉，沒有可播放的歌曲'
+    },
+    rank: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
