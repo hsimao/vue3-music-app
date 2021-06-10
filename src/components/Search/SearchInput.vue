@@ -1,7 +1,12 @@
 <template>
   <div class="search-input">
     <i class="icon-search" />
-    <input class="input-inner" :value="modelValue" @input="changeInput" />
+    <input
+      class="input-inner"
+      :placeholder="placeholder"
+      :value="modelValue"
+      @input="changeInput"
+    />
     <i class="icon-dismiss" v-show="modelValue" @click="clear" />
   </div>
 </template>
@@ -15,6 +20,10 @@ export default {
     modelValue: {
       type: String,
       required: true
+    },
+    placeholder: {
+      type: String,
+      default: '搜尋歌曲、歌手'
     }
   },
   methods: {
