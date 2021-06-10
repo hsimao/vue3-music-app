@@ -14,7 +14,12 @@
           <p class="text">{{ singer.name }}</p>
         </div>
       </li>
-      <li class="suggest-item" v-for="song in songs" :key="song.id">
+      <li
+        class="suggest-item"
+        v-for="song in songs"
+        :key="song.id"
+        @click="selectSong(song)"
+      >
         <div class="icon">
           <i class="icon-music" />
         </div>
@@ -45,7 +50,8 @@ export default {
       default: true
     }
   },
-  setup(props) {
+  emits: ['select-song'],
+  setup(props, { emit }) {
     const singer = ref(null)
     const songs = ref([])
     const hasMore = ref(true)
@@ -109,6 +115,8 @@ export default {
       }
     }
 
+    const selectSong = song => emit('select-song', song)
+
     const { scroll, rootRef, isPullUpLoad } = usePullUpLoad(
       searchMore,
       preventPullUpLoad
@@ -122,6 +130,7 @@ export default {
       noResult,
       noResultText,
       pullUpLoading,
+      selectSong,
       // pullUpLoad
       rootRef
     }

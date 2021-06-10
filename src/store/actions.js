@@ -70,3 +70,27 @@ export function clearSongList({ commit }) {
   commit('setCurrentIndex', 0)
   commit('setPlaying', false)
 }
+
+export function addSong({ commit, state }, song) {
+  const playlist = state.playlist.slice()
+  const playIndex = findIndex(playlist, song)
+  let currentIndex = state.currentIndex
+  if (playIndex === -1) {
+    playlist.push(song)
+    currentIndex = playlist.length - 1
+  } else {
+    currentIndex = playIndex
+  }
+
+  const sequenceList = state.sequenceList.slice()
+  const sequenceIndex = findIndex(sequenceList, song)
+  if (sequenceIndex === -1) {
+    sequenceList.push(song)
+  }
+
+  commit('setSequenceList', sequenceList)
+  commit('setPlaylist', playlist)
+  commit('setCurrentIndex', currentIndex)
+  commit('setPlaying', true)
+  commit('setFullScreen', true)
+}
