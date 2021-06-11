@@ -1,12 +1,18 @@
 <template>
   <AppHeader />
   <Tabs />
-  <router-view :style="viewStyle" />
+  <router-view :style="viewStyle" v-slot="{ Component }">
+    <keep-alive>
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
 
   <!--  指定 user router 套用轉場效果 -->
   <router-view name="user" v-slot="{ Component }" :style="viewStyle">
     <transition appear name="slide">
-      <component :is="Component" />
+      <keep-alive>
+        <component :is="Component" />
+      </keep-alive>
     </transition>
   </router-view>
   <Player />
