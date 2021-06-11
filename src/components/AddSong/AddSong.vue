@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import SearchInput from '@/components/Search/SearchInput'
 import SearchSuggest from '@/components/Search/SearchSuggest'
@@ -91,6 +91,7 @@ export default {
   },
   setup() {
     const messageRef = ref(null)
+    const scrollRef = ref(null)
     const visible = ref(false)
     const query = ref('')
     const currentIndex = ref(0)
@@ -100,9 +101,24 @@ export default {
     const searchHistory = computed(() => store.state.searchHistory)
     const playHistory = computed(() => store.state.playHistory)
 
-    const show = () => (visible.value = true)
-    const hide = () => (visible.value = false)
-    const addQuery = song => (query.value = song)
+    watch(query, async newQuery => {
+      await nextTick()
+      refreshScroll()
+    })
+
+    const show = async () => {
+      visible.value = true
+      await nextTick()
+      refreshScroll()
+    }
+
+    const hide = () => {
+      visible.value = false
+    }
+
+    const addQuery = song => {
+      query.value = song
+    }
 
     const selectSongBySongList = ({ song }) => {
       addSong(song)
@@ -123,10 +139,15 @@ export default {
       messageRef.value.show()
     }
 
+    const refreshScroll = () => {
+      scrollRef.value.scroll.refresh()
+    }
+
     const { saveSearch } = useSearchHistory()
 
     return {
       messageRef,
+      scrollRef,
       visible,
       query,
       currentIndex,
