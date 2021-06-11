@@ -2,7 +2,11 @@ import storage from 'good-storage'
 
 function inertArray(arr, val, compare, maxLength) {
   const index = arr.findIndex(compare)
-  if (index > -1) return
+  if (index === 0) return
+
+  if (index > 0) {
+    arr.splice(index, 1)
+  }
 
   arr.unshift(val)
 
