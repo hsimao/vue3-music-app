@@ -2,15 +2,15 @@
   <div class="app-header">
     <span class="icon"></span>
     <h1 class="text">Chicken Music</h1>
-    <router-link class="mine" to="/">
-      <i class="icon-mine"></i>
+    <router-link class="mine" to="/user">
+      <i class="icon-mine" />
     </router-link>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'm-header'
+  name: 'AppHeader'
 }
 </script>
 
