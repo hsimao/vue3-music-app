@@ -39,6 +39,13 @@
             </transition-group>
           </Scroll>
 
+          <div class="list-add">
+            <div class="add" @click="showAddSong">
+              <i class="icon-add" />
+              <span class="text">添加歌曲到清單</span>
+            </div>
+          </div>
+
           <div class="list-footer" @click="hide">
             <span>關閉</span>
           </div>
@@ -50,6 +57,8 @@
           confirm-btn-text="清空"
           @confirm="confirmClear"
         />
+
+        <AddSong ref="addSongRef" />
       </div>
     </transition>
   </teleport>
@@ -62,12 +71,14 @@ import useMode from './useMode'
 import useFavorite from './useFavorite'
 import Scroll from '@/components/base/Scroll/Scroll'
 import Confirm from '@/components/base/Confirm/Confirm'
+import AddSong from '@/components/AddSong/AddSong'
 
 export default {
   name: 'Playlist',
   components: {
     Scroll,
-    Confirm
+    Confirm,
+    AddSong
   },
   setup() {
     const visible = ref(false)
@@ -75,6 +86,7 @@ export default {
     const scrollRef = ref(null)
     const listRef = ref(null)
     const confirmRef = ref(null)
+    const addSongRef = ref(null)
 
     // vuex
     const store = useStore()
@@ -156,6 +168,10 @@ export default {
       hide()
     }
 
+    const showAddSong = () => {
+      addSongRef.value.show()
+    }
+
     // hook
     const { modeIcon, modeText, changeMode } = useMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
@@ -164,6 +180,7 @@ export default {
       scrollRef,
       listRef,
       confirmRef,
+      addSongRef,
       visible,
       playlist,
       sequenceList,
@@ -176,6 +193,7 @@ export default {
       hide,
       showConfirm,
       confirmClear,
+      showAddSong,
       // mode
       modeIcon,
       modeText,

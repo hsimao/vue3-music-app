@@ -132,6 +132,7 @@ import useFavorite from './useFavorite'
 import useCD from './useCD'
 import useMiddleInteractive from './useMiddleInteractive'
 import useAnimation from './useAnimation'
+import setPlayHistory from './usePlayHistory'
 import ProgressBar from '@/components/Player/ProgressBar'
 import Lyric from '@/components/Player/Lyric'
 import MiniPlayer from '@/components/Player/MiniPlayer'
@@ -222,6 +223,7 @@ export default {
       if (songReady.value) return
       songReady.value = true
       lyricRef.value.playLyric()
+      savePlay(currentSong.value)
     }
 
     const error = () => {
@@ -274,6 +276,7 @@ export default {
     const { modeIcon, changeMode } = useMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
     const { cdClass, cdRef, cdImageRef } = useCD()
+    const { savePlay } = setPlayHistory()
     const {
       currentShow,
       middleLStyle,
