@@ -2,6 +2,13 @@
   <AppHeader />
   <Tabs />
   <router-view :style="viewStyle" />
+
+  <!--  指定 user router 套用轉場效果 -->
+  <router-view name="user" v-slot="{ Component }" :style="viewStyle">
+    <transition appear name="slide">
+      <component :is="Component" />
+    </transition>
+  </router-view>
   <Player />
 </template>
 

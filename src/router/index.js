@@ -41,7 +41,10 @@ const routes = [
   },
   {
     path: '/user',
-    component: UserCenter
+    // <router-view name="user">
+    components: {
+      user: UserCenter
+    }
   }
 ]
 
